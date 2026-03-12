@@ -28,8 +28,6 @@ if vim.g.vscode then
   end
 
   -- ── 行移动（<A-j/k>）──
-  -- macOS 上 Alt 会产生死键（∆/˚），neovim 侧映射作为 fallback
-  -- 实际生效的是 keybindings.json 中的直接绑定
   map("n", "<A-j>", function() notify("editor.action.moveLinesDownAction") end, { desc = "Move line down" })
   map("n", "<A-k>", function() notify("editor.action.moveLinesUpAction") end, { desc = "Move line up" })
   map("v", "<A-j>", function() notify("editor.action.moveLinesDownAction") end, { desc = "Move line down" })
@@ -44,6 +42,12 @@ if vim.g.vscode then
   -- ══════════════════════════════════════════════════════════
   -- LSP
   -- ══════════════════════════════════════════════════════════
+  -- 删除 Neovim 0.11+ 默认的 gr* 映射，避免 gr 延迟
+  pcall(vim.keymap.del, "n", "grn")
+  pcall(vim.keymap.del, "n", "grr")
+  pcall(vim.keymap.del, "n", "gra")
+  pcall(vim.keymap.del, "n", "gri")
+
   map("n", "gd", function() notify("editor.action.revealDefinition") end, { desc = "Go to definition" })
   map("n", "gD", function() notify("editor.action.peekDefinition") end, { desc = "Peek definition" })
   map("n", "gr", function() notify("editor.action.goToReferences") end, { desc = "Go to references" })
