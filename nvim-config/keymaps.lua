@@ -39,6 +39,15 @@ if vim.g.vscode then
   -- ── 清除搜索高亮 ──
   map("n", "<esc>", "<cmd>noh<cr><esc>", { desc = "Clear hlsearch" })
 
+  -- ── 折叠 ──
+  map("n", "za", function() notify("editor.toggleFold") end, { desc = "Toggle fold" })
+  map("n", "zo", function() notify("editor.unfold") end, { desc = "Open fold" })
+  map("n", "zc", function() notify("editor.fold") end, { desc = "Close fold" })
+  map("n", "zO", function() notify("editor.unfoldRecursively") end, { desc = "Open fold recursively" })
+  map("n", "zC", function() notify("editor.foldRecursively") end, { desc = "Close fold recursively" })
+  map("n", "zR", function() notify("editor.unfoldAll") end, { desc = "Open all folds" })
+  map("n", "zM", function() notify("editor.foldAll") end, { desc = "Close all folds" })
+
   -- ══════════════════════════════════════════════════════════
   -- LSP
   -- ══════════════════════════════════════════════════════════
