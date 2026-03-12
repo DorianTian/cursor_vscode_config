@@ -1,340 +1,336 @@
-# Cursor 完整配置指南
+# Cursor / VSCode + vscode-neovim 完整配置
 
-> 一流外观 + 极致 Vim 体验。三端统一：Neovim / Cursor / VSCode。
+> Vim editing feel 100% 一致 + `<leader>` 键触发 VSCode 等价操作。三端统一：Terminal Neovim / Cursor / VSCode。
+
+## 架构
+
+```
+cursor_vscode_config/
+├── cursor-config/
+│   ├── settings.json       # 编辑器外观 + 行为 + 格式化 + 扩展配置
+│   └── keybindings.json    # Ctrl/Alt 组合键（VSCode 层，不经过 neovim）
+├── nvim-config/
+│   ├── lazy.lua            # VSCode 模式只加载 surround，终端加载完整 LazyVim
+│   ├── keymaps.lua         # 80+ 统一快捷键（vim.g.vscode 双分支）
+│   └── options.lua         # 三端共享选项
+├── .prettierrc             # 全局 Prettier 配置
+├── install.sh              # 一键安装脚本
+├── SKILL.md                # Claude Code skill 定义
+└── README.md
+```
+
+### 为什么某些键在 keybindings.json 而不在 keymaps.lua？
+
+| 按键 | 原因 |
+|------|------|
+| `Ctrl+h/j/k/l` | VSCode/macOS 在 neovim 之前拦截 Ctrl 组合键 |
+| `Alt+j/k` | macOS Alt 产生死键（∆/˚），neovim 收不到 |
+| `Ctrl+/`、`Ctrl+\` | 终端切换，需要 VSCode 直接处理 |
 
 ---
 
-## Quick Start (新机器一键配置)
+## Quick Start
+
+### 方式一：一键脚本
 
 ```bash
-# 1. 安装字体
+git clone git@github.com:DorianTian/cursor_vscode_config.git
+cd cursor_vscode_config
+
+# Cursor
+./install.sh cursor
+
+# VSCode
+./install.sh code
+```
+
+脚本会：安装字体 → 安装扩展 → 备份现有配置 → 复制新配置。
+
+### 方式二：手动配置
+
+#### 1. 安装字体
+
+```bash
 brew install --cask font-maple-mono font-victor-mono font-jetbrains-mono
+```
 
-# 2. 安装 Neovim
-brew install neovim
+#### 2. 安装扩展
 
-# 3. 安装 Cursor 扩展
-cursor --install-extension Catppuccin.catppuccin-vsc
-cursor --install-extension Catppuccin.catppuccin-vsc-icons
+```bash
+# Theme & Icons
+cursor --install-extension dracula-theme.theme-dracula
+cursor --install-extension nickcernis.jetbrains-icon-theme-2024
 cursor --install-extension antfu.icons-carbon
+
+# Neovim
 cursor --install-extension asvetliakov.vscode-neovim
+
+# Git / Diagnostics / Formatters
 cursor --install-extension eamodio.gitlens
 cursor --install-extension usernamehw.errorlens
+cursor --install-extension esbenp.prettier-vscode
+cursor --install-extension dbaeumer.vscode-eslint
 
-# 4. 让 Claude 自动配置
-# 在 Cursor 终端中使用 Claude Code，输入 /setup-vscode-neovim
+# Languages
+cursor --install-extension Vue.volar
+cursor --install-extension golang.go
+cursor --install-extension redhat.vscode-yaml
 ```
+
+#### 3. 复制配置文件
+
+```bash
+# Cursor (macOS)
+cp cursor-config/settings.json ~/Library/Application\ Support/Cursor/User/settings.json
+cp cursor-config/keybindings.json ~/Library/Application\ Support/Cursor/User/keybindings.json
+
+# VSCode (macOS)
+cp cursor-config/settings.json ~/Library/Application\ Support/Code/User/settings.json
+cp cursor-config/keybindings.json ~/Library/Application\ Support/Code/User/keybindings.json
+
+# Neovim
+cp nvim-config/*.lua ~/.config/nvim/lua/config/
+
+# Prettier
+cp .prettierrc ~/
+```
+
+#### 4. 按需调整
+
+- `settings.json` 中 `http.proxy`（按需取消注释）
+- `go.alternateTools.dlv` 路径（`which dlv`）
+- `vscode-neovim.neovimExecutablePaths.darwin`（`which nvim`）
 
 ---
 
-## 外观效果
+## 外观
 
-| 项目 | 选择 | 理由 |
-|------|------|------|
-| **主题** | Catppuccin Mocha | 暖色高对比，完整生态（编辑器+图标统一风格） |
-| **编辑器字体** | Maple Mono | 最佳连字 + 草书斜体（关键字/注释自动斜体） |
-| **终端字体** | Maple Mono / Victor Mono | 连字支持，阅读舒适 |
-| **图标** | Catppuccin Icons + Carbon Product Icons | 统一风格，文件类型一目了然 |
-| **字体粗细** | 400（Regular） | Bold 全屏看久眼疲劳，用斜体做强调 |
-
----
-
-## 核心配置文件
-
-### Cursor settings.json
-
-路径：`~/Library/Application Support/Cursor/User/settings.json`
-
-```json
-{
-  // ══ 字体 ══
-  "editor.fontFamily": "'Maple Mono', 'Victor Mono', 'JetBrains Mono', 'Fira Code', Menlo, monospace",
-  "editor.fontSize": 15,
-  "editor.fontWeight": "400",
-  "editor.fontLigatures": "'calt', 'liga', 'ss01', 'ss02'",
-  "editor.fontVariations": true,
-  "terminal.integrated.fontFamily": "'Maple Mono', 'Victor Mono', 'JetBrains Mono'",
-  "terminal.integrated.fontSize": 14,
-  "terminal.integrated.fontWeightBold": "bold",
-  "terminal.integrated.fontLigatures.enabled": true,
-  "debug.console.fontFamily": "'Victor Mono'",
-  "debug.console.fontSize": 14,
-  "scm.inputFontFamily": "'Victor Mono'",
-  "scm.inputFontSize": 14,
-  "notebook.markup.fontFamily": "'Victor Mono'",
-  "notebook.markup.fontSize": 14,
-  "notebook.output.fontFamily": "'Victor Mono'",
-  "notebook.output.fontSize": 14,
-  "editor.inlineSuggest.fontFamily": "'Victor Mono'",
-  "editor.suggestFontSize": 14,
-  "errorLens.fontFamily": "'Victor Mono'",
-  "errorLens.fontSize": "13",
-
-  // ══ 主题 & 外观 ══
-  "workbench.colorTheme": "Catppuccin Mocha",
-  "workbench.iconTheme": "catppuccin-mocha",
-  "workbench.productIconTheme": "icons-carbon",
-  "workbench.sideBar.location": "right",
-  "window.commandCenter": true,
-  "editor.semanticHighlighting.enabled": true,
-  "editor.tokenColorCustomizations": {
-    "[Catppuccin Mocha]": {
-      "textMateRules": [
-        {
-          "scope": ["comment", "keyword", "storage.modifier", "variable.language.this", "entity.other.attribute-name"],
-          "settings": { "fontStyle": "italic" }
-        }
-      ]
-    }
-  },
-
-  // ══ 编辑器体验 ══
-  "editor.tabSize": 2,
-  "editor.lineNumbers": "relative",
-  "editor.cursorSurroundingLines": 8,
-  "editor.cursorBlinking": "smooth",
-  "editor.cursorSmoothCaretAnimation": "on",
-  "editor.smoothScrolling": true,
-  "editor.mouseWheelScrollSensitivity": 2,
-  "editor.bracketPairColorization.enabled": true,
-  "editor.guides.bracketPairs": "active",
-  "editor.guides.indentation": true,
-  "editor.guides.highlightActiveIndentation": true,
-  "editor.minimap.enabled": true,
-  "editor.minimap.renderCharacters": false,
-  "editor.minimap.maxColumn": 80,
-  "editor.minimap.autohide": true,
-  "editor.stickyScroll.enabled": true,
-  "editor.stickyScroll.maxLineCount": 3,
-  "editor.formatOnSave": true,
-  "editor.formatOnPaste": false,
-  "editor.linkedEditing": true,
-  "editor.renderWhitespace": "boundary",
-  "editor.wordWrap": "off",
-  "editor.rulers": [120],
-  "editor.inlayHints.enabled": "onUnlessPressed",
-  "editor.inlayHints.fontSize": 12,
-  "diffEditor.ignoreTrimWhitespace": false,
-
-  // ══ 终端 ══
-  "terminal.integrated.smoothScrolling": true,
-  "terminal.integrated.cursorBlinking": true,
-  "terminal.integrated.cursorStyle": "line",
-
-  // ══ Workbench 行为 ══
-  "explorer.confirmDelete": false,
-  "explorer.confirmDragAndDrop": false,
-  "explorer.compactFolders": false,
-  "workbench.editor.tabSizing": "shrink",
-  "workbench.editor.enablePreview": true,
-  "workbench.startupEditor": "none",
-  "workbench.list.smoothScrolling": true,
-  "workbench.tree.indent": 16,
-  "workbench.settings.applyToAllProfiles": [],
-
-  // ══ 语言 Formatter ══
-  "[vue]": { "editor.defaultFormatter": "Vue.volar" },
-  "[typescript]": { "editor.defaultFormatter": "esbenp.prettier-vscode" },
-  "[typescriptreact]": { "editor.defaultFormatter": "esbenp.prettier-vscode" },
-  "[javascript]": { "editor.defaultFormatter": "esbenp.prettier-vscode" },
-  "[json]": { "editor.defaultFormatter": "esbenp.prettier-vscode" },
-  "[jsonc]": { "editor.defaultFormatter": "vscode.json-language-features" },
-  "[html]": { "editor.defaultFormatter": "esbenp.prettier-vscode" },
-  "[css]": { "editor.defaultFormatter": "esbenp.prettier-vscode" },
-  "[scss]": { "editor.defaultFormatter": "esbenp.prettier-vscode" },
-  "[less]": { "editor.defaultFormatter": "esbenp.prettier-vscode" },
-  "[yaml]": { "editor.defaultFormatter": "redhat.vscode-yaml" },
-  "[sql]": { "editor.defaultFormatter": "cweijan.vscode-database-client2" },
-  "[go]": {
-    "editor.formatOnSave": true,
-    "editor.defaultFormatter": "golang.go",
-    "editor.codeActionsOnSave": { "source.organizeImports": "explicit" }
-  },
-
-  // ══ 语言 & 工具 ══
-  "go.formatTool": "goimports",
-  "go.toolsManagement.autoUpdate": true,
-  "go.alternateTools": { "dlv": "/opt/homebrew/bin/dlv" },
-  "go.lintTool": "golangci-lint",
-  "go.lintOnSave": "workspace",
-  "javascript.updateImportsOnFileMove.enabled": "always",
-  "typescript.updateImportsOnFileMove.enabled": "always",
-  "json.schemas": [],
-
-  // ══ Git ══
-  "git.enableSmartCommit": true,
-  "git.autofetch": true,
-  "git.openRepositoryInParentFolders": "never",
-  "gitlens.graph.layout": "editor",
-  "gitlens.codeLens.enabled": false,
-
-  // ══ 扩展 ══
-  "database-client.autoSync": true,
-  "redhat.telemetry.enabled": true,
-  "console-ninja.featureSet": "Community",
-  "console-ninja.fontSize": 14,
-  "makefile.configureOnOpen": true,
-  "security.promptForLocalFileProtocolHandling": false,
-  "keyboard.dispatch": "keyCode",
-
-  // ══ Claude Code ══
-  "claudeCode.useTerminal": true,
-  "claudeCode.environmentVariables": [],
-
-  // ══ VSCode-Neovim ══
-  "vscode-neovim.neovimExecutablePaths.darwin": "/opt/homebrew/bin/nvim",
-  "extensions.experimental.affinity": {
-    "asvetliakov.vscode-neovim": 1
-  }
-}
-```
+| 项目 | 选择 |
+|------|------|
+| 主题 | Dracula Theme |
+| 图标 | JetBrains Icon Theme |
+| Product Icons | Carbon |
+| 编辑器字体 | Maple Mono (16px) |
+| 终端字体 | Maple Mono (14px) |
+| 侧边栏 | 右侧 |
+| 斜体 | comment / keyword / this / attribute |
 
 ---
 
-## Neovim 配置（三端共享）
+## 快捷键速查表
 
-所有文件位于 `~/.config/nvim/lua/config/`。
+> `<leader>` = 空格键。所有 `<leader>` 开头的键在 keymaps.lua 定义，通过 neovim 触发 VSCode action。
 
-### options.lua
+### Vim 基础
 
-```lua
-local opt = vim.opt
-opt.tabstop = 2
-opt.shiftwidth = 2
-opt.relativenumber = true
-opt.scrolloff = 8
-opt.clipboard = "unnamedplus"
-opt.wrap = false
-opt.undofile = true
-if vim.g.vscode then opt.undofile = false end
-```
-
-### lazy.lua 核心逻辑
-
-```lua
-if vim.g.vscode then
-  -- 手动加载（没有 LazyVim 自动加载）
-  require("config.options")
-  require("lazy").setup({
-    spec = {
-      { "kylechui/nvim-surround", version = "*", event = "VeryLazy", opts = {} },
-    },
-  })
-  require("config.keymaps")
-else
-  -- 完整 LazyVim + 所有 plugins/
-  require("lazy").setup({ ... })
-end
-```
-
-### keymaps.lua 核心逻辑
-
-```lua
--- 通用
-map("i", "jk", "<esc>")
-map("n", ";", ":")
-
-if vim.g.vscode then
-  local vscode = require("vscode")
-  -- 70+ 映射，全部走 vscode.action()
-  -- ...
-else
-  -- 原生 Neovim 命令
-  -- ...
-end
-```
-
----
-
-## 统一快捷键速查表
-
-> `<leader>` = 空格键
+| 键 | 功能 | 记忆 |
+|----|------|------|
+| `jk` | 退出 Insert | **j**ust **k**idding |
+| `;` | 命令模式 | 比 `:` 少按一个 Shift |
+| `Esc` | 清除搜索高亮 | — |
+| `Ctrl+s` | 保存 | — |
 
 ### LSP
 
-| 快捷键 | 功能 |
-|--------|------|
-| `gd` | 跳转定义 |
-| `gD` | Peek 定义 |
-| `gr` | 查找引用 |
-| `gi` | 跳转实现 |
-| `gy` | 跳转类型定义 |
-| `K` | 悬浮文档 |
-| `]d` / `[d` | 下/上一个诊断 |
+| 键 | 功能 | 记忆 |
+|----|------|------|
+| `gd` | 跳转定义 | **g**o to **d**efinition |
+| `gD` | Peek 定义 | **g**o **D**eep (peek) |
+| `gr` | 查找引用 | **g**o to **r**eferences |
+| `gi` | 跳转实现 | **g**o to **i**mplementation |
+| `gy` | 跳转类型定义 | **g**o to t**y**pe |
+| `gK` | 签名帮助 | — |
+| `K` | 悬浮文档 | Vim 原生 |
+| `]d` / `[d` | 下/上一个诊断 | **d**iagnostic |
+| `]e` / `[e` | 下/上一个错误 | **e**rror |
+| `]w` / `[w` | 下/上一个警告 | **w**arning |
 
-### 代码操作
+### Code（`<leader>c` 组）
 
-| 快捷键 | 功能 |
-|--------|------|
-| `<leader>rn` | 重命名 |
-| `<leader>ca` | 快速修复 |
-| `<leader>fm` | 格式化 |
+| 键 | 功能 | 记忆 |
+|----|------|------|
+| `<leader>rn` | 重命名 | **r**e**n**ame |
+| `<leader>ca` | Code Action | **c**ode **a**ction |
+| `<leader>cf` | 格式化 | **c**ode **f**ormat |
+| `<leader>co` | 整理 imports | **c**ode **o**rganize |
+| `<leader>cr` | 重命名 | **c**ode **r**ename |
+| `<leader>cR` | 重构 | **c**ode **R**efactor |
+| `<leader>cM` | Source action | **c**ode **M**ore |
 
-### 搜索 & 导航
+### 搜索（`<leader>s` 组）
 
-| 快捷键 | 功能 |
-|--------|------|
-| `<leader>ff` | 搜索文件 |
-| `<leader>fg` / `<leader>/` | 全局文本搜索 |
-| `<leader>fw` | 搜索光标下的词 |
-| `<leader>fb` | 搜索 Buffer |
-| `<leader>fr` | 最近文件 |
-| `<leader>e` | 切换侧边栏 |
-| `<leader>E` | 定位当前文件 |
+| 键 | 功能 | 记忆 |
+|----|------|------|
+| `<leader>sw` | 搜索光标下单词（n/N 导航） | **s**earch **w**ord |
+| `<leader>sW` | 项目搜索光标下单词 | **s**earch **W**ord (project) |
+| `<leader>sg` | 全局搜索 | **s**earch **g**rep |
+| `<leader>/` | 全局搜索（别名） | — |
+| `<leader>sb` | Buffer 内搜索 | **s**earch **b**uffer |
+| `<leader>sd` | 诊断面板 | **s**earch **d**iagnostics |
+| `<leader>ss` | 当前文件 Symbol | **s**earch **s**ymbol |
+| `<leader>sS` | 工作区 Symbol | **s**earch **S**ymbol (workspace) |
+| `<leader>sr` | 搜索替换 | **s**earch **r**eplace |
+| `<leader>sR` | 全局替换 | **s**earch **R**eplace (project) |
+| `<leader>sh` | 命令面板 | **s**earch **h**elp |
+| `<leader>sk` | 查看快捷键 | **s**earch **k**eymaps |
+| `<leader>sm` | 最近编辑器 | **s**earch **m**ru |
+| `<leader>sc` | 命令面板 | **s**earch **c**ommands |
 
-### 窗口 & Buffer
+### 文件（`<leader>f` 组）
 
-| 快捷键 | 功能 |
-|--------|------|
-| `Ctrl+h/j/k/l` | 窗口导航 |
-| `H` / `L` | 上/下一个 Tab |
-| `<leader>bd` | 关闭 Buffer |
-| `<leader>1-4` | 跳转编辑器 1-4 |
-| `Ctrl+\` | 切换终端 |
+| 键 | 功能 | 记忆 |
+|----|------|------|
+| `<leader>ff` | 搜索文件 | **f**ind **f**iles |
+| `<leader>fb` | 所有 Buffer | **f**ind **b**uffers |
+| `<leader>fr` | 最近文件 | **f**ind **r**ecent |
+| `<leader>fc` | 打开设置 | **f**ind **c**onfig |
+| `<leader>fn` | 新文件 | **f**ile **n**ew |
+| `<leader>fp` | 复制相对路径 | **f**ile **p**ath |
+| `<leader>fP` | 复制绝对路径 | **f**ile **P**ath (absolute) |
+| `<leader>ft` | 新终端 | **f**ile **t**erminal |
 
-### Git
+### 文件树 / 侧边栏
 
-| 快捷键 | 功能 |
-|--------|------|
-| `<leader>gB` | 文件 Blame |
-| `<leader>gd` | SCM / Diff |
-| `<leader>gh` | 文件历史 |
-| `]c` / `[c` | 下/上一个变更 |
+| 键 | 功能 | 记忆 |
+|----|------|------|
+| `<leader>e` | 切换侧边栏 | **e**xplorer |
+| `<leader>E` | 在资源管理器中定位当前文件 | **E**xplorer reveal |
 
-### Debug
+### Buffer（`<leader>b` 组）
 
-| 快捷键 | 功能 |
-|--------|------|
-| `<leader>db` | 断点 |
-| `<leader>dc` | 继续 |
-| `<leader>do` / `di` / `dO` | 步过 / 步入 / 步出 |
-| `<leader>dt` / `dr` | 终止 / 重启 |
+| 键 | 功能 | 记忆 |
+|----|------|------|
+| `H` / `L` | 上/下一个 Tab | Vim 原生 motion 复用 |
+| `[b` / `]b` | 上/下一个 Buffer | **b**uffer |
+| `<leader>bd` | 关闭 Buffer | **b**uffer **d**elete |
+| `<leader>bo` | 关闭其他 | **b**uffer **o**nly |
+| `<leader>bD` | 关闭所有 | **b**uffer **D**estroy all |
+| `<leader>bp` / `bP` | Pin / Unpin | **b**uffer **p**in |
+| `<leader>1-4` | 跳转编辑器 1-4 | 数字直达 |
 
-### Test
+### 窗口（`<leader>w` 组 + `Ctrl+hjkl`）
 
-| 快捷键 | 功能 |
-|--------|------|
-| `<leader>tt` | 运行最近测试 |
-| `<leader>tf` | 运行文件测试 |
-| `<leader>td` | 调试测试 |
+| 键 | 功能 | 记忆 |
+|----|------|------|
+| `Ctrl+h/j/k/l` | 窗口导航 | Vim 方向键 |
+| `<leader>wd` | 关闭当前窗口 | **w**indow **d**elete |
+| `<leader>w-` / `ws` | 水平分屏 | — / **w**indow **s**plit |
+| `<leader>w\|` / `wv` | 垂直分屏 | — / **w**indow **v**ertical |
+| `<leader>wo` | 关闭其他窗口 | **w**indow **o**nly |
+| `<leader>ww` | 下一个窗口 | **w**indow **w**indow |
+| `<leader>w=` | 等宽窗口 | **w**indow **=**equal |
 
-### 其他
+### Tab（`<leader><tab>` 组）
 
-| 快捷键 | 功能 |
-|--------|------|
-| `jk` | 退出 Insert |
-| `;` | 命令模式 |
-| `Ctrl+s` | 保存 |
-| `Alt+j/k` | 移动行 |
-| `ys / ds / cs` | Surround 操作 |
-| `<leader>cgt` | Go: 添加 tag |
+| 键 | 功能 |
+|----|------|
+| `<leader><tab><tab>` | 切换到上一个 Tab |
+| `<leader><tab>d` | 关闭 Tab |
+| `<leader><tab>o` | 关闭其他 Tab |
+| `<leader><tab>l` | 最后一个 Tab |
+| `<leader><tab>f` | 第一个 Tab |
+
+### Quickfix（`<leader>x` 组）
+
+| 键 | 功能 |
+|----|------|
+| `<leader>xx` | 诊断面板 |
+| `<leader>xq` | Quickfix 列表 |
+| `[q` / `]q` | 上/下一个 Quickfix |
+
+### UI Toggles（`<leader>u` 组）
+
+| 键 | 功能 | 记忆 |
+|----|------|------|
+| `<leader>uw` | 切换自动换行 | **u**i **w**rap |
+| `<leader>ul` | 切换空白字符 | **u**i white**l**ine |
+| `<leader>um` | 切换 Minimap | **u**i **m**inimap |
+| `<leader>us` | 切换 Sticky Scroll | **u**i **s**ticky |
+| `<leader>ub` | 切换面包屑 | **u**i **b**readcrumbs |
+| `<leader>uz` | Zen Mode | **u**i **z**en |
+| `<leader>uZ` | 全屏 | **u**i **Z**oom |
+
+### Git（`<leader>g` 组）
+
+| 键 | 功能 | 记忆 |
+|----|------|------|
+| `<leader>gg` | Git 状态 | **g**it **g**o |
+| `<leader>gB` | 文件 Blame | **g**it **B**lame |
+| `<leader>gd` | Diff 当前文件 | **g**it **d**iff |
+| `<leader>gh` | 文件历史 | **g**it **h**istory |
+| `<leader>gl` | Git 日志图 | **g**it **l**og |
+| `]c` / `[c` | 下/上一个变更 | **c**hange |
+| `]h` / `[h` | 下/上一个 Hunk | **h**unk |
+| `<leader>ghs` | Stage Hunk | **g**it **h**unk **s**tage |
+| `<leader>ghu` | Unstage Hunk | **g**it **h**unk **u**nstage |
+| `<leader>ghr` | Revert Hunk | **g**it **h**unk **r**evert |
+
+### Debug（`<leader>d` 组）
+
+| 键 | 功能 | 记忆 |
+|----|------|------|
+| `<leader>db` | 断点 | **d**ebug **b**reakpoint |
+| `<leader>dB` | 条件断点 | **d**ebug **B**reakpoint (conditional) |
+| `<leader>dc` | 继续 | **d**ebug **c**ontinue |
+| `<leader>do` | 步过 | **d**ebug step **o**ver |
+| `<leader>di` | 步入 | **d**ebug step **i**nto |
+| `<leader>dO` | 步出 | **d**ebug step **O**ut |
+| `<leader>dt` | 终止 | **d**ebug **t**erminate |
+| `<leader>dr` | 重启 | **d**ebug **r**estart |
+| `<leader>du` | REPL | **d**ebug **u**i (repl) |
+| `<leader>dw` | Watch | **d**ebug **w**atch |
+| `<leader>ds` | Call Stack | **d**ebug **s**tack |
+
+### Test（`<leader>t` 组）
+
+| 键 | 功能 | 记忆 |
+|----|------|------|
+| `<leader>tt` | 运行当前测试 | **t**est **t**his |
+| `<leader>tf` | 运行文件测试 | **t**est **f**ile |
+| `<leader>ts` | 测试概览 | **t**est **s**ummary |
+| `<leader>td` | 调试测试 | **t**est **d**ebug |
+| `<leader>tl` | 重跑上次测试 | **t**est **l**ast |
+| `<leader>to` | 测试输出 | **t**est **o**utput |
+
+### 终端
+
+| 键 | 功能 |
+|----|------|
+| `Ctrl+/` | 切换终端 |
+| `Ctrl+\` | 切换终端（备选） |
+| `<leader>ft` | 新建终端 |
+
+### 杂项
+
+| 键 | 功能 |
+|----|------|
+| `Alt+j/k` | 移动行（上/下） |
+| `ys` / `ds` / `cs` | Surround 操作（nvim-surround） |
+| `<leader>l` | 命令面板 |
+| `<leader>L` | 快捷键设置 |
+| `<leader>qq` | 退出 |
 | `<leader>Dt` | 数据库面板 |
+| `<leader>cgt` | Go: 添加 tags |
+| `<leader>cgr` | Go: 移除 tags |
+
+---
+
+## 已知限制
+
+| LazyVim 功能 | VSCode 状态 | 替代方案 |
+|-------------|-------------|----------|
+| `[f` / `]f` 函数跳转 | ❌ 无等价命令 | `<leader>ss` 打开 Symbol 列表 |
+| Telescope 浮窗 | ❌ 无法复现 | VSCode Quick Open / 命令面板 |
+| Neo-tree 文件树 | ❌ 无法复现 | `<leader>e` 侧边栏 |
+| which-key 提示 | ❌ 无法复现 | 查看本文档 |
+| Treesitter textobjects | 部分支持 | 内置的 `vaf` 等不可用 |
 
 ---
 
 ## 维护
 
 - **添加快捷键**：`keymaps.lua` 的 `vim.g.vscode` 两个分支各加一份
-- **添加插件**：只加到 `plugins/` 目录，VSCode 模式自动跳过
-- **换主题**：改 `settings.json` 的 `colorTheme` + `iconTheme`，同时更新 `tokenColorCustomizations` 的 scope
-- **换字体**：改 `editor.fontFamily`，确保已安装
+- **Ctrl/Alt 组合键**：加在 `keybindings.json`（VSCode 会拦截）
+- **添加插件**：只加到 `~/.config/nvim/lua/plugins/`，VSCode 模式自动跳过
+- **换主题**：改 `settings.json` 的 `colorTheme` + `iconTheme`，同时更新 `tokenColorCustomizations` 的 scope 名
+- **遇到 `nvim_win_set_cursor` 错误**：`Cmd+Shift+P` → `Neovim: Restart`

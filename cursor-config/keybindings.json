@@ -1,0 +1,111 @@
+[
+    // ══════════════════════════════════════════════════════════
+    // 历史导航：Alt+Cmd+Left/Right（覆盖默认 Ctrl+-/Shift+-）
+    // ══════════════════════════════════════════════════════════
+    {
+        "key": "alt+cmd+left",
+        "command": "workbench.action.navigateBack",
+        "when": "canNavigateBack"
+    },
+    {
+        "key": "ctrl+-",
+        "command": "-workbench.action.navigateBack",
+        "when": "canNavigateBack"
+    },
+    {
+        "key": "alt+cmd+right",
+        "command": "workbench.action.navigateForward",
+        "when": "canNavigateForward"
+    },
+    {
+        "key": "ctrl+shift+-",
+        "command": "-workbench.action.navigateForward",
+        "when": "canNavigateForward"
+    },
+
+    // ══════════════════════════════════════════════════════════
+    // Cursor AI（仅 Cursor IDE 有效，VSCode 可忽略）
+    // ══════════════════════════════════════════════════════════
+    {
+        "key": "cmd+i",
+        "command": "composerMode.agent"
+    },
+    {
+        "key": "alt+cmd+s",
+        "command": "workbench.action.toggleUnifiedSidebarFromKeyboard",
+        "when": "cursor.agentIdeUnification.enabled == true && !isAuxiliaryWindowFocusedContext"
+    },
+
+    // ══════════════════════════════════════════════════════════
+    // 窗口导航：Ctrl+h/j/k/l → 直接绑 VSCode action（不经过 neovim）
+    // 原因：VSCode/macOS 会在 neovim 之前拦截 Ctrl 组合键
+    // ══════════════════════════════════════════════════════════
+
+    // Ctrl+h → 聚焦左侧编辑器组（覆盖默认 Find & Replace）
+    {
+        "key": "ctrl+h",
+        "command": "-editor.action.startFindReplaceAction"
+    },
+    {
+        "key": "ctrl+h",
+        "command": "workbench.action.focusLeftGroup",
+        "when": "editorTextFocus && neovim.mode != 'insert'"
+    },
+
+    // Ctrl+j → 聚焦下方编辑器组
+    {
+        "key": "ctrl+j",
+        "command": "workbench.action.focusBelowGroup",
+        "when": "editorTextFocus && neovim.mode != 'insert'"
+    },
+
+    // Ctrl+k → 聚焦上方编辑器组（覆盖默认 chord prefix）
+    {
+        "key": "ctrl+k",
+        "command": "-extension.vim_ctrl+k",
+        "when": "editorTextFocus"
+    },
+    {
+        "key": "ctrl+k",
+        "command": "workbench.action.focusAboveGroup",
+        "when": "editorTextFocus && neovim.mode != 'insert'"
+    },
+
+    // Ctrl+l → 聚焦右侧编辑器组
+    {
+        "key": "ctrl+l",
+        "command": "-expandLineSelection",
+        "when": "editorTextFocus"
+    },
+    {
+        "key": "ctrl+l",
+        "command": "workbench.action.focusRightGroup",
+        "when": "editorTextFocus && neovim.mode != 'insert'"
+    },
+
+    // ══════════════════════════════════════════════════════════
+    // 终端切换
+    // ══════════════════════════════════════════════════════════
+    {
+        "key": "ctrl+/",
+        "command": "workbench.action.terminal.toggleTerminal"
+    },
+    {
+        "key": "ctrl+\\",
+        "command": "workbench.action.terminal.toggleTerminal"
+    },
+
+    // ══════════════════════════════════════════════════════════
+    // Alt+j/k 移动行（macOS Alt 产生死键 ∆/˚，必须在这里绑定）
+    // ══════════════════════════════════════════════════════════
+    {
+        "key": "alt+j",
+        "command": "editor.action.moveLinesDownAction",
+        "when": "editorTextFocus && !suggestWidgetVisible"
+    },
+    {
+        "key": "alt+k",
+        "command": "editor.action.moveLinesUpAction",
+        "when": "editorTextFocus && !suggestWidgetVisible"
+    }
+]
