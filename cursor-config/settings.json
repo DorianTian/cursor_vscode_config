@@ -1,0 +1,204 @@
+{
+  // ══════════════════════════════════════════════════════════
+  // 字体
+  // ══════════════════════════════════════════════════════════
+  // 编辑器主字体：Maple Mono（连字+斜体草书）> Victor Mono > JetBrains Mono
+  "editor.fontFamily": "'Victor Mono',  'Maple Mono', 'JetBrains Mono', 'Fira Code', Menlo, monospace",
+  "editor.fontSize": 15,
+  "editor.fontWeight": "400",
+  "editor.fontLigatures": "'calt', 'liga', 'ss01', 'ss02'",
+  "editor.fontVariations": true,
+  // 终端字体
+  "terminal.integrated.fontFamily": "'Maple Mono', 'Victor Mono', 'JetBrains Mono'",
+  "terminal.integrated.fontSize": 14,
+  "terminal.integrated.fontWeightBold": "bold",
+  "terminal.integrated.fontLigatures.enabled": true,
+  // 全局统一字体（调试/SCM/Notebook/错误提示）
+  "debug.console.fontFamily": "'Victor Mono'",
+  "debug.console.fontSize": 14,
+  "scm.inputFontFamily": "'Victor Mono'",
+  "scm.inputFontSize": 14,
+  "notebook.markup.fontFamily": "'Victor Mono'",
+  "notebook.markup.fontSize": 14,
+  "notebook.output.fontFamily": "'Victor Mono'",
+  "notebook.output.fontSize": 14,
+  "editor.inlineSuggest.fontFamily": "'Victor Mono'",
+  "editor.suggestFontSize": 14,
+  "errorLens.fontFamily": "'Victor Mono'",
+  "errorLens.fontSize": "13",
+  // ══════════════════════════════════════════════════════════
+  // 主题 & 外观
+  // ══════════════════════════════════════════════════════════
+  "workbench.colorTheme": "Catppuccin Mocha",
+  "workbench.iconTheme": "catppuccin-mocha",
+  "workbench.productIconTheme": "icons-carbon",
+  "workbench.sideBar.location": "right",
+  "window.commandCenter": true,
+  // 语义高亮 + 斜体关键字/注释
+  "editor.semanticHighlighting.enabled": true,
+  "editor.tokenColorCustomizations": {
+    "[Catppuccin Mocha]": {
+      "textMateRules": [
+        {
+          "scope": [
+            "comment",
+            "keyword",
+            "storage.modifier",
+            "variable.language.this",
+            "entity.other.attribute-name"
+          ],
+          "settings": {
+            "fontStyle": "italic"
+          }
+        }
+      ]
+    }
+  },
+  // ══════════════════════════════════════════════════════════
+  // 编辑器核心体验
+  // ══════════════════════════════════════════════════════════
+  "editor.tabSize": 2,
+  "editor.lineNumbers": "relative",
+  "editor.cursorSurroundingLines": 8,
+  "editor.cursorBlinking": "smooth",
+  "editor.cursorSmoothCaretAnimation": "on",
+  "editor.smoothScrolling": true,
+  "editor.mouseWheelScrollSensitivity": 2,
+  // 括号
+  "editor.bracketPairColorization.enabled": true,
+  "editor.guides.bracketPairs": "active",
+  "editor.guides.indentation": true,
+  "editor.guides.highlightActiveIndentation": true,
+  // Minimap
+  "editor.minimap.enabled": true,
+  "editor.minimap.renderCharacters": false,
+  "editor.minimap.maxColumn": 80,
+  "editor.minimap.autohide": true,
+  // Sticky scroll（函数/类名置顶）
+  "editor.stickyScroll.enabled": true,
+  "editor.stickyScroll.maxLineCount": 3,
+  // 保存 & 格式化
+  "editor.formatOnSave": true,
+  "editor.formatOnPaste": false,
+  "editor.linkedEditing": true,
+  "editor.renderWhitespace": "boundary",
+  "editor.wordWrap": "off",
+  "editor.rulers": [
+    120
+  ],
+  // Inlay hints（类型提示）
+  "editor.inlayHints.enabled": "onUnlessPressed",
+  "editor.inlayHints.fontSize": 12,
+  // Diff
+  "diffEditor.ignoreTrimWhitespace": false,
+  // ══════════════════════════════════════════════════════════
+  // 终端
+  // ══════════════════════════════════════════════════════════
+  "terminal.integrated.smoothScrolling": true,
+  "terminal.integrated.cursorBlinking": true,
+  "terminal.integrated.cursorStyle": "line",
+  // ══════════════════════════════════════════════════════════
+  // Workbench 行为
+  // ══════════════════════════════════════════════════════════
+  "explorer.confirmDelete": false,
+  "explorer.confirmDragAndDrop": false,
+  "explorer.compactFolders": false,
+  "workbench.editor.tabSizing": "shrink",
+  "workbench.editor.enablePreview": true,
+  "workbench.startupEditor": "none",
+  "workbench.list.smoothScrolling": true,
+  "workbench.tree.indent": 16,
+  "workbench.settings.applyToAllProfiles": [],
+  // ══════════════════════════════════════════════════════════
+  // 语言 Formatter
+  // ══════════════════════════════════════════════════════════
+  "[vue]": {
+    "editor.defaultFormatter": "Vue.volar"
+  },
+  "[typescript]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[typescriptreact]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[javascript]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[json]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[jsonc]": {
+    "editor.defaultFormatter": "vscode.json-language-features"
+  },
+  "[html]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[css]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[scss]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[less]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[yaml]": {
+    "editor.defaultFormatter": "redhat.vscode-yaml"
+  },
+  "[sql]": {
+    "editor.defaultFormatter": "cweijan.vscode-database-client2"
+  },
+  "[go]": {
+    "editor.formatOnSave": true,
+    "editor.defaultFormatter": "golang.go",
+    "editor.codeActionsOnSave": {
+      "source.organizeImports": "explicit"
+    }
+  },
+  // ══════════════════════════════════════════════════════════
+  // 语言 & 工具
+  // ══════════════════════════════════════════════════════════
+  // Go
+  "go.formatTool": "goimports",
+  "go.toolsManagement.autoUpdate": true,
+  "go.alternateTools": {
+    "dlv": "/opt/homebrew/bin/dlv"
+  },
+  "go.lintTool": "golangci-lint",
+  "go.lintOnSave": "workspace",
+  // JS/TS
+  "javascript.updateImportsOnFileMove.enabled": "always",
+  "typescript.updateImportsOnFileMove.enabled": "always",
+  // JSON
+  "json.schemas": [],
+  // ══════════════════════════════════════════════════════════
+  // Git
+  // ══════════════════════════════════════════════════════════
+  "git.enableSmartCommit": true,
+  "git.autofetch": true,
+  "git.openRepositoryInParentFolders": "never",
+  "gitlens.graph.layout": "editor",
+  "gitlens.codeLens.enabled": false,
+  // ══════════════════════════════════════════════════════════
+  // 扩展
+  // ══════════════════════════════════════════════════════════
+  "database-client.autoSync": true,
+  "redhat.telemetry.enabled": true,
+  "console-ninja.featureSet": "Community",
+  "console-ninja.fontSize": 14,
+  "makefile.configureOnOpen": true,
+  "security.promptForLocalFileProtocolHandling": false,
+  "keyboard.dispatch": "keyCode",
+  // ══════════════════════════════════════════════════════════
+  // Claude Code
+  // ══════════════════════════════════════════════════════════
+  "claudeCode.useTerminal": true,
+  "claudeCode.environmentVariables": [],
+  // ══════════════════════════════════════════════════════════
+  // VSCode-Neovim
+  // ══════════════════════════════════════════════════════════
+  "vscode-neovim.neovimExecutablePaths.darwin": "/opt/homebrew/bin/nvim",
+  "extensions.experimental.affinity": {
+    "asvetliakov.vscode-neovim": 1
+  }
+}
