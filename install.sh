@@ -2,14 +2,83 @@
 set -euo pipefail
 
 # ══════════════════════════════════════════════════════════
-# Cursor / VSCode + vscode-neovim 一键配置脚本
-# 用法: ./install.sh [cursor|code]
+# Cursor / VSCode + vscode-neovim 模块化配置安装脚本
+#
+# 用法:
+#   ./install.sh                    # 显示可用模块
+#   ./install.sh all                # 全量安装
+#   ./install.sh editor nvim        # 只装指定模块
+#   ./install.sh --ide code all     # 指定 VSCode
+#   ./install.sh --ide cursor editor nvim formatters
+#
+# 可用模块:
+#   fonts       安装字体（Maple Mono, Victor Mono, JetBrains Mono, Nerd Font）
+#   neovim      安装 Neovim
+#   extensions  安装 IDE 扩展（Dracula, GitLens, Prettier, ESLint...）
+#   editor      复制 settings.json + keybindings.json
+#   nvim        复制 keymaps.lua + lazy.lua + options.lua
+#   formatters  复制 .prettierrc, .editorconfig, ruff.toml, eslint.config.js
+#   all         以上全部
 # ══════════════════════════════════════════════════════════
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
-IDE="${1:-cursor}"
 
-# ── 检测平台 ──
+# ── 颜色 ──
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+BLUE='\033[0;34m'
+NC='\033[0m'
+
+info()    { echo -e "${BLUE}[INFO]${NC} $*"; }
+success() { echo -e "${GREEN}[OK]${NC}   $*"; }
+warn()    { echo -e "${YELLOW}[WARN]${NC} $*"; }
+
+# ── 解析参数 ──
+IDE="cursor"
+MODULES=()
+
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    --ide)
+      IDE="$2"
+      shift 2
+      ;;
+    *)
+      MODULES+=("$1")
+      shift
+      ;;
+  esac
+done
+
+# ── 无参数时显示帮助 ──
+if [[ ${#MODULES[@]} -eq 0 ]]; then
+  echo ""
+  echo "Usage: ./install.sh [--ide cursor|code] <module1> [module2] ..."
+  echo ""
+  echo "Available modules:"
+  echo "  fonts       Install fonts (Maple Mono, Victor Mono, JetBrains Mono, Nerd Font)"
+  echo "  neovim      Install Neovim"
+  echo "  extensions  Install IDE extensions"
+  echo "  editor      Copy settings.json + keybindings.json"
+  echo "  nvim        Copy keymaps.lua + lazy.lua + options.lua"
+  echo "  formatters  Copy .prettierrc, .editorconfig, ruff.toml, eslint.config.js"
+  echo "  all         Install everything"
+  echo ""
+  echo "Examples:"
+  echo "  ./install.sh all                    # Full install for Cursor"
+  echo "  ./install.sh editor nvim            # Only editor + nvim configs"
+  echo "  ./install.sh --ide code all         # Full install for VSCode"
+  echo "  ./install.sh formatters             # Only formatting configs"
+  echo ""
+  exit 0
+fi
+
+# ── 展开 all ──
+if [[ " ${MODULES[*]} " == *" all "* ]]; then
+  MODULES=(fonts neovim extensions editor nvim formatters)
+fi
+
+# ── 检测平台 & 路径 ──
 OS="$(uname -s)"
 case "$OS" in
   Darwin)
@@ -31,126 +100,186 @@ case "$OS" in
     fi
     ;;
   *)
-    echo "❌ Unsupported platform: $OS"
+    echo "Unsupported platform: $OS"
     exit 1
     ;;
 esac
 
 NVIM_CONFIG_DIR="$HOME/.config/nvim/lua/config"
 
+echo ""
 echo "══════════════════════════════════════════════════════════"
-echo "  IDE: $IDE | Platform: $OS"
-echo "  Settings → $SETTINGS_DIR"
-echo "  Neovim   → $NVIM_CONFIG_DIR"
+echo "  IDE:     $IDE | Platform: $OS"
+echo "  Modules: ${MODULES[*]}"
 echo "══════════════════════════════════════════════════════════"
 
-# ── Step 1: 安装字体 ──
-echo ""
-echo "▶ Step 1: Installing fonts..."
-if command -v brew &>/dev/null; then
-  brew install --cask font-maple-mono font-victor-mono font-jetbrains-mono 2>/dev/null || true
-  echo "  ✓ Fonts installed (or already present)"
-else
-  echo "  ⚠ Homebrew not found. Please install fonts manually:"
-  echo "    - Maple Mono: https://github.com/subframe7536/maple-font"
-  echo "    - Victor Mono: https://rubjo.github.io/victor-mono/"
-  echo "    - JetBrains Mono: https://www.jetbrains.com/lp/mono/"
-fi
+# ── 备份工具函数 ──
+backup_and_copy() {
+  local src="$1"
+  local dst="$2"
+  local name="$(basename "$dst")"
 
-# ── Step 2: 安装 Neovim ──
-echo ""
-echo "▶ Step 2: Checking Neovim..."
-if command -v nvim &>/dev/null; then
-  echo "  ✓ Neovim found: $(nvim --version | head -1)"
-else
-  echo "  Installing Neovim..."
+  if [[ -f "$dst" ]]; then
+    cp "$dst" "${dst}.bak"
+    success "Backed up $name → ${name}.bak"
+  fi
+  cp "$src" "$dst"
+  success "$name"
+}
+
+# ══════════════════════════════════════════════════════════
+# Module: fonts
+# ══════════════════════════════════════════════════════════
+install_fonts() {
+  echo ""
+  info "▶ [fonts] Installing fonts..."
   if command -v brew &>/dev/null; then
-    brew install neovim
+    brew install --cask font-maple-mono font-victor-mono font-jetbrains-mono font-jetbrains-mono-nerd-font 2>/dev/null || true
+    success "Fonts installed (or already present)"
   else
-    echo "  ⚠ Please install Neovim manually: https://neovim.io"
+    warn "Homebrew not found. Install fonts manually:"
+    echo "    - Maple Mono: https://github.com/subframe7536/maple-font"
+    echo "    - Victor Mono: https://rubjo.github.io/victor-mono/"
+    echo "    - JetBrains Mono: https://www.jetbrains.com/lp/mono/"
+    echo "    - JetBrains Mono Nerd Font: https://www.nerdfonts.com/"
   fi
-fi
+}
 
-# ── Step 3: 安装扩展 ──
-echo ""
-echo "▶ Step 3: Installing extensions..."
-if command -v "$CLI_CMD" &>/dev/null; then
-  EXTENSIONS=(
-    # Theme & Icons
-    "dracula-theme.theme-dracula"
-    "nickcernis.jetbrains-icon-theme-2024"
-    "antfu.icons-carbon"
-    # Neovim
-    "asvetliakov.vscode-neovim"
-    # Git
-    "eamodio.gitlens"
-    # Diagnostics
-    "usernamehw.errorlens"
-    # Formatters
-    "esbenp.prettier-vscode"
-    "dbaeumer.vscode-eslint"
-    # Languages
-    "Vue.volar"
-    "golang.go"
-    "redhat.vscode-yaml"
-  )
-  for ext in "${EXTENSIONS[@]}"; do
-    echo "  Installing $ext..."
-    "$CLI_CMD" --install-extension "$ext" --force 2>/dev/null || true
+# ══════════════════════════════════════════════════════════
+# Module: neovim
+# ══════════════════════════════════════════════════════════
+install_neovim() {
+  echo ""
+  info "▶ [neovim] Checking Neovim..."
+  if command -v nvim &>/dev/null; then
+    success "Neovim found: $(nvim --version | head -1)"
+  else
+    info "Installing Neovim..."
+    if command -v brew &>/dev/null; then
+      brew install neovim
+      success "Neovim installed"
+    else
+      warn "Please install Neovim manually: https://neovim.io"
+    fi
+  fi
+}
+
+# ══════════════════════════════════════════════════════════
+# Module: extensions
+# ══════════════════════════════════════════════════════════
+install_extensions() {
+  echo ""
+  info "▶ [extensions] Installing IDE extensions..."
+  if command -v "$CLI_CMD" &>/dev/null; then
+    EXTENSIONS=(
+      # Theme & Icons
+      "dracula-theme.theme-dracula"
+      "nickcernis.jetbrains-icon-theme-2024"
+      "antfu.icons-carbon"
+      # Neovim
+      "asvetliakov.vscode-neovim"
+      # Git
+      "eamodio.gitlens"
+      # Diagnostics
+      "usernamehw.errorlens"
+      # Formatters
+      "esbenp.prettier-vscode"
+      "dbaeumer.vscode-eslint"
+      "charliermarsh.ruff"
+      # Languages
+      "Vue.volar"
+      "golang.go"
+      "redhat.vscode-yaml"
+    )
+    for ext in "${EXTENSIONS[@]}"; do
+      info "  Installing $ext..."
+      "$CLI_CMD" --install-extension "$ext" --force 2>/dev/null || true
+    done
+    success "Extensions installed"
+  else
+    warn "'$CLI_CMD' CLI not found. Install extensions manually."
+  fi
+}
+
+# ══════════════════════════════════════════════════════════
+# Module: editor (settings.json + keybindings.json)
+# ══════════════════════════════════════════════════════════
+install_editor() {
+  echo ""
+  info "▶ [editor] Copying Cursor/VSCode config..."
+  mkdir -p "$SETTINGS_DIR"
+
+  backup_and_copy "$SCRIPT_DIR/cursor-config/settings.json" "$SETTINGS_DIR/settings.json"
+  backup_and_copy "$SCRIPT_DIR/cursor-config/keybindings.json" "$SETTINGS_DIR/keybindings.json"
+}
+
+# ══════════════════════════════════════════════════════════
+# Module: nvim (keymaps.lua + lazy.lua + options.lua)
+# ══════════════════════════════════════════════════════════
+install_nvim() {
+  echo ""
+  info "▶ [nvim] Copying Neovim config..."
+  mkdir -p "$NVIM_CONFIG_DIR"
+
+  for f in keymaps.lua lazy.lua options.lua; do
+    backup_and_copy "$SCRIPT_DIR/nvim-config/$f" "$NVIM_CONFIG_DIR/$f"
   done
-  echo "  ✓ Extensions installed"
-else
-  echo "  ⚠ '$CLI_CMD' CLI not found. Install extensions manually in the IDE."
-fi
+}
 
-# ── Step 4: 复制配置文件 ──
-echo ""
-echo "▶ Step 4: Copying config files..."
+# ══════════════════════════════════════════════════════════
+# Module: formatters (.prettierrc, .editorconfig, ruff, eslint)
+# ══════════════════════════════════════════════════════════
+install_formatters() {
+  echo ""
+  info "▶ [formatters] Copying formatting configs..."
 
-# Cursor/VSCode settings
-mkdir -p "$SETTINGS_DIR"
+  # 全局配置文件 → $HOME
+  local global_files=(".prettierrc" ".editorconfig" "ruff.toml")
+  for f in "${global_files[@]}"; do
+    if [[ -f "$SCRIPT_DIR/$f" ]]; then
+      backup_and_copy "$SCRIPT_DIR/$f" "$HOME/$f"
+    else
+      warn "$f not found in repo, skipping"
+    fi
+  done
 
-if [[ -f "$SETTINGS_DIR/settings.json" ]]; then
-  cp "$SETTINGS_DIR/settings.json" "$SETTINGS_DIR/settings.json.bak"
-  echo "  ✓ Backed up existing settings.json → settings.json.bak"
-fi
-cp "$SCRIPT_DIR/cursor-config/settings.json" "$SETTINGS_DIR/settings.json"
-echo "  ✓ settings.json"
-
-if [[ -f "$SETTINGS_DIR/keybindings.json" ]]; then
-  cp "$SETTINGS_DIR/keybindings.json" "$SETTINGS_DIR/keybindings.json.bak"
-  echo "  ✓ Backed up existing keybindings.json → keybindings.json.bak"
-fi
-cp "$SCRIPT_DIR/cursor-config/keybindings.json" "$SETTINGS_DIR/keybindings.json"
-echo "  ✓ keybindings.json"
-
-# Neovim config
-mkdir -p "$NVIM_CONFIG_DIR"
-
-for f in keymaps.lua lazy.lua options.lua; do
-  if [[ -f "$NVIM_CONFIG_DIR/$f" ]]; then
-    cp "$NVIM_CONFIG_DIR/$f" "$NVIM_CONFIG_DIR/${f}.bak"
-    echo "  ✓ Backed up existing $f → ${f}.bak"
+  # eslint.config.js → 提示用户按项目复制
+  if [[ -f "$SCRIPT_DIR/eslint.config.js" ]]; then
+    success "eslint.config.js available at: $SCRIPT_DIR/eslint.config.js"
+    info "  Copy to your project: cp $SCRIPT_DIR/eslint.config.js <project-dir>/"
   fi
-  cp "$SCRIPT_DIR/nvim-config/$f" "$NVIM_CONFIG_DIR/$f"
-  echo "  ✓ $f"
+
+  # sql-formatter.json
+  if [[ -f "$SCRIPT_DIR/sql-formatter.json" ]]; then
+    backup_and_copy "$SCRIPT_DIR/sql-formatter.json" "$HOME/sql-formatter.json"
+  fi
+}
+
+# ══════════════════════════════════════════════════════════
+# 执行选中的模块
+# ══════════════════════════════════════════════════════════
+for mod in "${MODULES[@]}"; do
+  case "$mod" in
+    fonts)      install_fonts ;;
+    neovim)     install_neovim ;;
+    extensions) install_extensions ;;
+    editor)     install_editor ;;
+    nvim)       install_nvim ;;
+    formatters) install_formatters ;;
+    *)
+      warn "Unknown module: $mod (available: fonts neovim extensions editor nvim formatters all)"
+      ;;
+  esac
 done
 
-# .prettierrc
-if [[ -f "$HOME/.prettierrc" ]]; then
-  cp "$HOME/.prettierrc" "$HOME/.prettierrc.bak"
-  echo "  ✓ Backed up existing .prettierrc → .prettierrc.bak"
-fi
-cp "$SCRIPT_DIR/.prettierrc" "$HOME/.prettierrc"
-echo "  ✓ .prettierrc"
-
-# ── Done ──
+# ── 完成 ──
 echo ""
 echo "══════════════════════════════════════════════════════════"
-echo "  ✅ Done! Restart $IDE to apply all changes."
+success "Done! Installed modules: ${MODULES[*]}"
 echo ""
-echo "  ⚠ 可能需要手动调整:"
-echo "    1. settings.json 中的 http.proxy（按需取消注释）"
-echo "    2. go.alternateTools.dlv 路径（运行 which dlv 确认）"
-echo "    3. vscode-neovim.neovimExecutablePaths（运行 which nvim 确认）"
+echo "  Notes:"
+echo "    - Restart $IDE to apply changes"
+echo "    - settings.json: uncomment http.proxy if needed"
+echo "    - Run 'which nvim' to verify neovim path in settings"
 echo "══════════════════════════════════════════════════════════"
+echo ""
