@@ -1,14 +1,17 @@
 return {
-  -- disable neo-tree and snacks explorer, use yazi.nvim instead
+  -- disable neo-tree, use snacks explorer instead
   { "nvim-neo-tree/neo-tree.nvim", enabled = false },
 
-  -- snacks: keep picker/notifications, disable explorer (replaced by yazi.nvim)
+  -- snacks: explorer sidebar + show dotfiles everywhere
   {
     "folke/snacks.nvim",
     opts = {
-      explorer = { enabled = false },
       picker = {
         sources = {
+          explorer = {
+            hidden = true,
+            ignored = true,
+          },
           files = {
             hidden = true,
             ignored = true,
