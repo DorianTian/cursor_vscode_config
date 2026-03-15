@@ -17,6 +17,7 @@ set -euo pipefail
 #   extensions  安装 IDE 扩展（Dracula, GitLens, Prettier, ESLint...）
 #   editor      复制 settings.json + keybindings.json
 #   nvim        复制 keymaps.lua + lazy.lua + options.lua
+#   yazi        安装 Yazi 终端文件管理器 + 复制配置
 #   formatters  复制 .prettierrc, .editorconfig, ruff.toml, eslint.config.js
 #   all         以上全部
 # ══════════════════════════════════════════════════════════
@@ -61,6 +62,7 @@ if [[ ${#MODULES[@]} -eq 0 ]]; then
   echo "  extensions  Install IDE extensions"
   echo "  editor      Copy settings.json + keybindings.json"
   echo "  nvim        Copy keymaps.lua + lazy.lua + options.lua"
+  echo "  yazi        Install Yazi file manager + copy config"
   echo "  formatters  Copy .prettierrc, .editorconfig, ruff.toml, eslint.config.js"
   echo "  all         Install everything"
   echo ""
@@ -75,7 +77,7 @@ fi
 
 # ── 展开 all ──
 if [[ " ${MODULES[*]} " == *" all "* ]]; then
-  MODULES=(fonts neovim extensions editor nvim formatters)
+  MODULES=(fonts neovim extensions editor nvim yazi formatters)
 fi
 
 # ── 检测平台 & 路径 ──
@@ -227,6 +229,41 @@ install_nvim() {
 }
 
 # ══════════════════════════════════════════════════════════
+# Module: yazi (terminal file manager + config)
+# ══════════════════════════════════════════════════════════
+install_yazi() {
+  echo ""
+  info "▶ [yazi] Setting up Yazi file manager..."
+
+  # Install yazi and preview dependencies
+  if command -v brew &>/dev/null; then
+    local yazi_pkgs=("yazi" "ffmpeg" "sevenzip" "poppler")
+    for pkg in "${yazi_pkgs[@]}"; do
+      if command -v "$pkg" &>/dev/null || brew list "$pkg" &>/dev/null 2>&1; then
+        success "$pkg already installed"
+      else
+        info "  Installing $pkg..."
+        brew install "$pkg" 2>/dev/null || true
+      fi
+    done
+  else
+    warn "Homebrew not found. Install manually: brew install yazi ffmpeg sevenzip poppler"
+  fi
+
+  # Copy config files
+  local YAZI_CONFIG_DIR="$HOME/.config/yazi"
+  mkdir -p "$YAZI_CONFIG_DIR"
+
+  for f in yazi.toml keymap.toml theme.toml; do
+    if [[ -f "$SCRIPT_DIR/yazi-config/$f" ]]; then
+      backup_and_copy "$SCRIPT_DIR/yazi-config/$f" "$YAZI_CONFIG_DIR/$f"
+    else
+      warn "$f not found in repo, skipping"
+    fi
+  done
+}
+
+# ══════════════════════════════════════════════════════════
 # Module: formatters (.prettierrc, .editorconfig, ruff, eslint)
 # ══════════════════════════════════════════════════════════
 install_formatters() {
@@ -265,9 +302,10 @@ for mod in "${MODULES[@]}"; do
     extensions) install_extensions ;;
     editor)     install_editor ;;
     nvim)       install_nvim ;;
+    yazi)       install_yazi ;;
     formatters) install_formatters ;;
     *)
-      warn "Unknown module: $mod (available: fonts neovim extensions editor nvim formatters all)"
+      warn "Unknown module: $mod (available: fonts neovim extensions editor nvim yazi formatters all)"
       ;;
   esac
 done

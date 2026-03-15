@@ -1,0 +1,116 @@
+# ══════════════════════════════════════════════════════════
+# Yazi Theme - Dracula-inspired (matches Cursor/VSCode theme)
+# ══════════════════════════════════════════════════════════
+
+[manager]
+cwd = { fg = "#bd93f9" }
+
+# Hovered
+hovered         = { fg = "#282a36", bg = "#f8f8f2" }
+preview_hovered = { underline = true }
+
+# Find
+find_keyword  = { fg = "#f1fa8c", bold = true, italic = true, underline = true }
+find_position = { fg = "#ff79c6", bg = "reset", italic = true }
+
+# Marker
+marker_copied   = { fg = "#50fa7b", bg = "#50fa7b" }
+marker_cut      = { fg = "#ff5555", bg = "#ff5555" }
+marker_selected = { fg = "#8be9fd", bg = "#8be9fd" }
+marker_marked   = { fg = "#f1fa8c", bg = "#f1fa8c" }
+
+# Tab
+tab_active   = { fg = "#282a36", bg = "#bd93f9" }
+tab_inactive = { fg = "#f8f8f2", bg = "#44475a" }
+tab_width    = 1
+
+# Count
+count_copied   = { fg = "#282a36", bg = "#50fa7b" }
+count_cut      = { fg = "#282a36", bg = "#ff5555" }
+count_selected = { fg = "#282a36", bg = "#8be9fd" }
+
+# Border
+border_symbol = "│"
+border_style  = { fg = "#6272a4" }
+
+[status]
+separator_open  = ""
+separator_close = ""
+separator_style = { fg = "#44475a", bg = "#44475a" }
+
+# Mode
+mode_normal = { fg = "#282a36", bg = "#bd93f9", bold = true }
+mode_select = { fg = "#282a36", bg = "#50fa7b", bold = true }
+mode_unset  = { fg = "#282a36", bg = "#ff79c6", bold = true }
+
+# Progress
+progress_label  = { fg = "#f8f8f2", bold = true }
+progress_normal = { fg = "#bd93f9", bg = "#44475a" }
+progress_error  = { fg = "#ff5555", bg = "#44475a" }
+
+# Permissions
+permissions_t = { fg = "#bd93f9" }
+permissions_r = { fg = "#f1fa8c" }
+permissions_w = { fg = "#ff5555" }
+permissions_x = { fg = "#50fa7b" }
+permissions_s = { fg = "#6272a4" }
+
+[input]
+border   = { fg = "#bd93f9" }
+title    = {}
+value    = {}
+selected = { reversed = true }
+
+[pick]
+border   = { fg = "#bd93f9" }
+active   = { fg = "#ff79c6" }
+inactive = {}
+
+[completion]
+border   = { fg = "#bd93f9" }
+active   = { bg = "#44475a" }
+inactive = {}
+
+icon_file    = ""
+icon_folder  = ""
+icon_command = ""
+
+[help]
+on      = { fg = "#ff79c6" }
+run     = { fg = "#8be9fd" }
+desc    = { fg = "#6272a4" }
+hovered = { bg = "#44475a", bold = true }
+footer  = { fg = "#44475a", bg = "#f8f8f2" }
+
+[filetype]
+rules = [
+  # Code
+  { mime = "text/*",             fg = "#f8f8f2" },
+  { mime = "*/javascript",       fg = "#f1fa8c" },
+  { mime = "*/typescript",       fg = "#8be9fd" },
+  { mime = "application/json",   fg = "#50fa7b" },
+  { mime = "*/xml",              fg = "#ffb86c" },
+
+  # Media
+  { mime = "image/*",            fg = "#ff79c6" },
+  { mime = "video/*",            fg = "#bd93f9" },
+  { mime = "audio/*",            fg = "#8be9fd" },
+
+  # Archive
+  { mime = "application/zip",    fg = "#ffb86c" },
+  { mime = "application/*zip*",  fg = "#ffb86c" },
+  { mime = "application/tar",    fg = "#ffb86c" },
+  { mime = "application/gzip",   fg = "#ffb86c" },
+
+  # Special
+  { name = "*.md",               fg = "#8be9fd" },
+  { name = "*.yml",              fg = "#ff5555" },
+  { name = "*.yaml",             fg = "#ff5555" },
+  { name = "*.toml",             fg = "#ffb86c" },
+  { name = ".git*",              fg = "#6272a4" },
+  { name = "node_modules",       fg = "#6272a4" },
+
+  # Fallback
+  { name = "*", fg = "#f8f8f2" },
+  { name = "*/", fg = "#bd93f9" },
+]

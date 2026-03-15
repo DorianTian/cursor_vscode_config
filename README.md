@@ -13,6 +13,10 @@ cursor_vscode_config/
 │   ├── lazy.lua            # VSCode 模式只加载 surround，终端加载完整 LazyVim
 │   ├── keymaps.lua         # 80+ 统一快捷键（vim.g.vscode 双分支）
 │   └── options.lua         # 三端共享选项
+├── yazi-config/
+│   ├── yazi.toml           # Yazi 主配置（文件管理器行为、opener、预览）
+│   ├── keymap.toml         # Vim-style 快捷键（gc=Cursor, yp=copy path）
+│   └── theme.toml          # Dracula 主题配色（与 Cursor 主题统一）
 ├── formatter/              # 统一代码格式化配置
 │   ├── .prettierrc.js      # Prettier 主配置（React/Vue overrides）
 │   ├── .prettierignore     # Prettier 忽略规则
@@ -345,6 +349,50 @@ cp .prettierrc ~/
 - **添加插件**：只加到 `~/.config/nvim/lua/plugins/`，VSCode 模式自动跳过
 - **换主题**：改 `settings.json` 的 `colorTheme` + `iconTheme`，同时更新 `tokenColorCustomizations` 的 scope 名
 - **遇到 `nvim_win_set_cursor` 错误**：`Cmd+Shift+P` → `Neovim: Restart`
+
+---
+
+## Yazi 终端文件管理器
+
+> Rust 写的终端文件管理器，内置 Markdown / 图片 / 视频 / PDF 预览，Vim 键位导航。
+
+### 安装
+
+```bash
+./install.sh yazi
+```
+
+### 预览依赖
+
+| 工具 | 用途 | 安装方式 |
+|------|------|----------|
+| ffmpeg | 视频缩略图预览 | `brew install ffmpeg` |
+| poppler | PDF 预览 | `brew install poppler` |
+| sevenzip | 压缩包预览 | `brew install sevenzip` |
+
+### 快捷键
+
+| 键 | 功能 | 记忆 |
+|----|------|------|
+| `h/j/k/l` | 导航 | Vim 方向键 |
+| `Enter` | 打开文件（Neovim） | — |
+| `gc` | 在 Cursor 中打开 | **g**o **C**ursor |
+| `gr` | 在 Finder 中显示 | **g**o **r**eveal |
+| `yp` | 复制绝对路径 | **y**ank **p**ath |
+| `yn` | 复制文件名 | **y**ank **n**ame |
+| `yd` | 复制目录路径 | **y**ank **d**ir |
+| `Space` | 选中文件 | — |
+| `!` | 运行 shell 命令 | — |
+| `q` | 退出 | — |
+
+### 配置文件
+
+```
+~/.config/yazi/
+├── yazi.toml     # 主配置：比例、排序、opener 规则
+├── keymap.toml   # 快捷键：gc/gr/yp 等自定义键
+└── theme.toml    # Dracula 配色
+```
 
 ---
 

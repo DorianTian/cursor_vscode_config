@@ -1,0 +1,17 @@
+# ══════════════════════════════════════════════════════════
+# Yazi Keymap - Vim-style, consistent with nvim-config
+# ══════════════════════════════════════════════════════════
+
+[manager]
+prepend_keymap = [
+  # Quick open in Cursor
+  { on = ["g", "c"], run = "shell 'cursor \"$@\"' --confirm", desc = "Open in Cursor" },
+  # Reveal in Finder
+  { on = ["g", "r"], run = "shell 'open -R \"$@\"' --confirm", desc = "Reveal in Finder" },
+  # Copy path (consistent with <leader>fp in nvim)
+  { on = ["y", "p"], run = "copy path", desc = "Copy absolute path" },
+  { on = ["y", "d"], run = "copy dirname", desc = "Copy directory path" },
+  { on = ["y", "n"], run = "copy filename", desc = "Copy filename" },
+  # Shell
+  { on = ["!"], run = "shell --block --interactive", desc = "Run shell command" },
+]
