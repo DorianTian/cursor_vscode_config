@@ -5,7 +5,7 @@ return {
     priority = 1000,
     opts = {
       flavour = "mocha",
-      transparent_background = true,
+      transparent_background = false,
       term_colors = true,
       integrations = {
         cmp = true,
