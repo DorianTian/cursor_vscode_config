@@ -1,18 +1,18 @@
---- Glow previewer for markdown files in Yazi
 local M = {}
 
 function M:peek(job)
-  local child = Command("glow")
-    :args({ "-s", "dark", "-w", tostring(job.area.w), tostring(job.file.url) })
+  local output = Command("/opt/homebrew/bin/glow")
+    :arg("-s"):arg("dark")
+    :arg("-w"):arg(tostring(job.area.w))
+    :arg(tostring(job.file.url))
     :stdout(Command.PIPED)
-    :stderr(Command.PIPED)
-    :spawn()
+    :stderr(Command.NULL)
+    :output()
 
-  local output = child:wait_with_output()
   if output and output.status and output.status.success then
-    ya.preview_widgets(job, { ui.Text.parse(output.stdout):area(job.area) })
+    ya.preview_widget(job, { ui.Text.parse(output.stdout):area(job.area) })
   else
-    ya.preview_widgets(job, { ui.Text("Failed to preview"):area(job.area) })
+    ya.preview_widget(job, { ui.Text("glow failed"):area(job.area) })
   end
 end
 

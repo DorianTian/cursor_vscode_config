@@ -20,7 +20,7 @@ tab_size   = 2
 
 [plugin]
 prepend_previewers = [
-  { name = "*.md", run = "glow" },
+  { url = "*.md", run = "glow" },
 ]
 
 [opener]
