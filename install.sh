@@ -223,14 +223,16 @@ install_nvim() {
   info "▶ [nvim] Copying Neovim config..."
   mkdir -p "$NVIM_CONFIG_DIR"
 
-  for f in keymaps.lua lazy.lua options.lua; do
-    backup_and_copy "$SCRIPT_DIR/nvim-config/$f" "$NVIM_CONFIG_DIR/$f"
+  for f in keymaps.lua lazy.lua options.lua autocmds.lua; do
+    if [[ -f "$SCRIPT_DIR/nvim-config/$f" ]]; then
+      backup_and_copy "$SCRIPT_DIR/nvim-config/$f" "$NVIM_CONFIG_DIR/$f"
+    fi
   done
 
   # Terminal-only neovim plugins (skipped in VSCode)
   local NVIM_PLUGINS_DIR="$HOME/.config/nvim/lua/plugins"
   mkdir -p "$NVIM_PLUGINS_DIR"
-  for plugin in ui.lua yazi.lua neo-tree.lua; do
+  for plugin in ui.lua neo-tree.lua yazi.lua coding.lua formatting.lua git.lua go.lua vim-be-good.lua; do
     if [[ -f "$SCRIPT_DIR/nvim-config/$plugin" ]]; then
       backup_and_copy "$SCRIPT_DIR/nvim-config/$plugin" "$NVIM_PLUGINS_DIR/$plugin"
     fi
