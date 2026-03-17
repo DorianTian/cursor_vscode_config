@@ -26,7 +26,9 @@ vim.api.nvim_create_autocmd("VimEnter", {
         )
         -- 停止所有已启动的 LSP
         vim.defer_fn(function()
-          vim.cmd("LspStop")
+          for _, client in ipairs(vim.lsp.get_clients()) do
+            client.stop()
+          end
         end, 1000)
         return
       end
