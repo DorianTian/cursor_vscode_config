@@ -76,11 +76,7 @@ keybind = super+shift+d=new_split:down
 # Cmd+[/] 快速切换前后分屏 (Ghostty 默认)
 # Cmd+Shift+Enter 最大化当前分屏 (Ghostty 默认)
 
-# --- Prompt 跳转（替代 Warp 的 block 导航，Ghostty 默认绑定，显式声明）---
-# Cmd+Up/Down 在各命令输出块之间跳转，需要 shell integration
-keybind = super+up=jump_to_prompt:-1
-keybind = super+down=jump_to_prompt:1
-
+# --- Prompt 跳转（Ghostty 默认绑定：Cmd+Arrow Up/Down = jump_to_prompt）---
 # --- 字体大小（Ghostty 默认绑定：Cmd+= / Cmd+- / Cmd+0）---
 
 # --- 关闭 ---
