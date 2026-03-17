@@ -32,20 +32,19 @@ cursor_vscode_config/
 │   ├── yazi.toml           # Yazi 主配置（文件管理器行为、opener、预览）
 │   ├── keymap.toml         # Vim-style 快捷键（gc=Cursor, yp=copy path）
 │   └── theme.toml          # Dracula 主题配色（与 Cursor 主题统一）
-├── formatter/              # 统一代码格式化配置
-│   ├── .prettierrc.js      # Prettier 主配置（React/Vue overrides）
-│   ├── .prettierignore     # Prettier 忽略规则
-│   ├── eslint.config.js    # 标准 ESLint 基线（无 ESLint 的项目使用）
-│   ├── ruff.toml           # Python ruff 格式化 + lint
-│   ├── sql-formatter.json  # SQL 格式化
-│   ├── .editorconfig       # 通用编辑器基线
-│   ├── vscode/settings.json# VS Code / Cursor 推荐配置
-│   ├── setup.sh            # 一键安装脚本
-│   ├── index.js            # npm 包入口（shareable config）
-│   └── package.json        # npm 包定义
-├── .prettierrc             # 全局 Prettier 配置（旧）
+├── ghostty-config/
+│   └── config              # Ghostty 终端配置
+├── zsh-config/             # Zsh 配置
+├── vscode/
+│   └── settings.json       # VS Code / Cursor 推荐配置
+├── .prettierrc             # Prettier 主配置
+├── .prettierignore         # Prettier 忽略规则
+├── .editorconfig           # 通用编辑器基线
+├── eslint.config.js        # 标准 ESLint 基线（无 ESLint 的项目使用）
+├── ruff.toml               # Python ruff 格式化 + lint
+├── sql-formatter.json      # SQL 格式化
+├── package.json            # npm 包定义
 ├── install.sh              # 一键安装脚本
-├── SKILL.md                # Claude Code skill 定义
 └── README.md
 ```
 
