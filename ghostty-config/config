@@ -48,7 +48,7 @@ shell-integration-features = cursor,sudo,title
 # Option 键作为 Alt（zsh/vim 快捷键必需）
 macos-option-as-alt = true
 # 关闭最后一个窗口后退出 app
-macos-quit-after-last-window-closed = true
+quit-after-last-window-closed = true
 
 # === 鼠标 ===
 copy-on-select = clipboard
@@ -76,15 +76,12 @@ keybind = super+shift+d=new_split:down
 # Cmd+[/] 快速切换前后分屏 (Ghostty 默认)
 # Cmd+Shift+Enter 最大化当前分屏 (Ghostty 默认)
 
-# --- Prompt 跳转（替代 Warp 的 block 导航）---
+# --- Prompt 跳转（替代 Warp 的 block 导航，Ghostty 默认绑定，显式声明）---
 # Cmd+Up/Down 在各命令输出块之间跳转，需要 shell integration
-keybind = super+up=scroll_to_prompt:-1
-keybind = super+down=scroll_to_prompt:1
+keybind = super+up=jump_to_prompt:-1
+keybind = super+down=jump_to_prompt:1
 
-# --- 字体大小 ---
-keybind = super+equal=increase_font_size:1
-keybind = super+minus=decrease_font_size:1
-keybind = super+zero=reset_font_size
+# --- 字体大小（Ghostty 默认绑定：Cmd+= / Cmd+- / Cmd+0）---
 
 # --- 关闭 ---
 keybind = super+w=close_surface
@@ -94,7 +91,7 @@ keybind = global:super+grave_accent=toggle_quick_terminal
 
 # === Quick Terminal ===
 quick-terminal-position = top
-quick-terminal-size = 0.4
+quick-terminal-size = 40%
 quick-terminal-animation-duration = 0.15
 
 # === 其他 ===
