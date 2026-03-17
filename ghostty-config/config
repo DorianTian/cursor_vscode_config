@@ -8,9 +8,9 @@ font-size = 16
 font-thicken = true
 
 # 中文回退字体 - 霞鹜文楷等宽
-font-codepoint-map = U+4E00-U+9FFF=LXGW WenKai Mono
-font-codepoint-map = U+3000-U+303F=LXGW WenKai Mono
-font-codepoint-map = U+FF00-U+FFEF=LXGW WenKai Mono
+font-codepoint-map = U+4E00-U+9FFF=LXGW WenKai Mono TC
+font-codepoint-map = U+3000-U+303F=LXGW WenKai Mono TC
+font-codepoint-map = U+FF00-U+FFEF=LXGW WenKai Mono TC
 
 # === 主题 ===
 theme = Dracula

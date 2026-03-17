@@ -63,6 +63,7 @@ if [[ ${#MODULES[@]} -eq 0 ]]; then
   echo "  editor      Copy settings.json + keybindings.json"
   echo "  nvim        Copy keymaps.lua + lazy.lua + options.lua"
   echo "  yazi        Install Yazi file manager + copy config"
+  echo "  ghostty     Install Ghostty terminal + LXGW WenKai Mono font + copy config"
   echo "  formatters  Copy .prettierrc, .editorconfig, ruff.toml, eslint.config.js"
   echo "  all         Install everything"
   echo ""
@@ -77,7 +78,7 @@ fi
 
 # ── 展开 all ──
 if [[ " ${MODULES[*]} " == *" all "* ]]; then
-  MODULES=(fonts neovim extensions editor nvim yazi formatters)
+  MODULES=(fonts neovim extensions editor nvim yazi ghostty formatters)
 fi
 
 # ── 检测平台 & 路径 ──
@@ -290,6 +291,46 @@ install_yazi() {
 }
 
 # ══════════════════════════════════════════════════════════
+# Module: ghostty (terminal emulator + config)
+# ══════════════════════════════════════════════════════════
+install_ghostty() {
+  echo ""
+  info "▶ [ghostty] Setting up Ghostty terminal..."
+
+  # Install Ghostty
+  if [[ -d "/Applications/Ghostty.app" ]]; then
+    success "Ghostty already installed"
+  elif command -v brew &>/dev/null; then
+    info "  Installing Ghostty..."
+    brew install --cask ghostty
+    success "Ghostty installed"
+  else
+    warn "Homebrew not found. Download Ghostty from: https://ghostty.org/download"
+  fi
+
+  # Install LXGW WenKai Mono font (Chinese fallback font used in config)
+  if brew list --cask font-lxgw-wenkai-mono-tc &>/dev/null 2>&1; then
+    success "font-lxgw-wenkai-mono-tc already installed"
+  elif command -v brew &>/dev/null; then
+    info "  Installing LXGW WenKai Mono TC font..."
+    brew install --cask font-lxgw-wenkai-mono-tc
+    success "font-lxgw-wenkai-mono-tc installed"
+  else
+    warn "Homebrew not found. Install LXGW WenKai Mono manually from: https://github.com/lxgw/LxgwWenkaiMono"
+  fi
+
+  # Copy config
+  local GHOSTTY_CONFIG_DIR="$HOME/.config/ghostty"
+  mkdir -p "$GHOSTTY_CONFIG_DIR"
+
+  if [[ -f "$SCRIPT_DIR/ghostty-config/config" ]]; then
+    backup_and_copy "$SCRIPT_DIR/ghostty-config/config" "$GHOSTTY_CONFIG_DIR/config"
+  else
+    warn "ghostty-config/config not found in repo, skipping"
+  fi
+}
+
+# ══════════════════════════════════════════════════════════
 # Module: formatters (.prettierrc, .editorconfig, ruff, eslint)
 # ══════════════════════════════════════════════════════════
 install_formatters() {
@@ -329,6 +370,7 @@ for mod in "${MODULES[@]}"; do
     editor)     install_editor ;;
     nvim)       install_nvim ;;
     yazi)       install_yazi ;;
+    ghostty)    install_ghostty ;;
     formatters) install_formatters ;;
     *)
       warn "Unknown module: $mod (available: fonts neovim extensions editor nvim yazi formatters all)"
