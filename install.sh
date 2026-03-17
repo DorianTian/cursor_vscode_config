@@ -64,6 +64,7 @@ if [[ ${#MODULES[@]} -eq 0 ]]; then
   echo "  nvim        Copy keymaps.lua + lazy.lua + options.lua"
   echo "  yazi        Install Yazi file manager + copy config"
   echo "  ghostty     Install Ghostty terminal + LXGW WenKai Mono font + copy config"
+  echo "  zsh         Copy .p10k.zsh (Powerlevel10k config)"
   echo "  formatters  Copy .prettierrc, .editorconfig, ruff.toml, eslint.config.js"
   echo "  all         Install everything"
   echo ""
@@ -78,7 +79,7 @@ fi
 
 # ── 展开 all ──
 if [[ " ${MODULES[*]} " == *" all "* ]]; then
-  MODULES=(fonts neovim extensions editor nvim yazi ghostty formatters)
+  MODULES=(fonts neovim extensions editor nvim yazi ghostty zsh formatters)
 fi
 
 # ── 检测平台 & 路径 ──
@@ -331,6 +332,30 @@ install_ghostty() {
 }
 
 # ══════════════════════════════════════════════════════════
+# Module: zsh (Powerlevel10k config)
+# ══════════════════════════════════════════════════════════
+install_zsh() {
+  echo ""
+  info "▶ [zsh] Copying Zsh config..."
+
+  if [[ -f "$SCRIPT_DIR/zsh-config/.p10k.zsh" ]]; then
+    backup_and_copy "$SCRIPT_DIR/zsh-config/.p10k.zsh" "$HOME/.p10k.zsh"
+  else
+    warn "zsh-config/.p10k.zsh not found in repo, skipping"
+  fi
+
+  # 确保 .zshrc 里有 source p10k
+  if [[ -f "$HOME/.zshrc" ]] && ! grep -q "p10k.zsh" "$HOME/.zshrc"; then
+    echo "" >> "$HOME/.zshrc"
+    echo "# Powerlevel10k" >> "$HOME/.zshrc"
+    echo "[[ -f ~/.p10k.zsh ]] && source ~/.p10k.zsh" >> "$HOME/.zshrc"
+    success "Added p10k source to .zshrc"
+  else
+    success ".zshrc already sources p10k"
+  fi
+}
+
+# ══════════════════════════════════════════════════════════
 # Module: formatters (.prettierrc, .editorconfig, ruff, eslint)
 # ══════════════════════════════════════════════════════════
 install_formatters() {
@@ -371,6 +396,7 @@ for mod in "${MODULES[@]}"; do
     nvim)       install_nvim ;;
     yazi)       install_yazi ;;
     ghostty)    install_ghostty ;;
+    zsh)        install_zsh ;;
     formatters) install_formatters ;;
     *)
       warn "Unknown module: $mod (available: fonts neovim extensions editor nvim yazi formatters all)"
