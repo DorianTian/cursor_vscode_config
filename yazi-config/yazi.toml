@@ -19,9 +19,11 @@ cache_dir  = ""
 tab_size   = 2
 
 [plugin]
-prepend_previewers = [
-  { url = "*.md", run = "glow" },
-]
+# glow renders markdown but doesn't support seek/scroll
+# using bat for markdown gives native scroll support (K/J)
+# prepend_previewers = [
+#   { url = "*.md", run = "glow" },
+# ]
 
 [opener]
 edit = [
