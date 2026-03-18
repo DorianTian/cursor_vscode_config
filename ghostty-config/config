@@ -79,6 +79,9 @@ keybind = super+shift+d=new_split:down
 # --- Prompt 跳转（Ghostty 默认绑定：Cmd+Arrow Up/Down = jump_to_prompt）---
 # --- 字体大小（Ghostty 默认绑定：Cmd+= / Cmd+- / Cmd+0）---
 
+# --- 复制粘贴 (修复 Claude Code TUI 中 Cmd+V 失效) ---
+keybind = super+v=paste_from_clipboard
+
 # --- 关闭 ---
 keybind = super+w=close_surface
 
