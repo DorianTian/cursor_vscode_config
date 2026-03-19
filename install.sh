@@ -18,7 +18,7 @@ set -euo pipefail
 #   editor      复制 settings.json + keybindings.json
 #   nvim        复制 keymaps.lua + lazy.lua + options.lua
 #   yazi        安装 Yazi 终端文件管理器 + 复制配置
-#   ghostty     安装 Ghostty 终端 + LXGW WenKai Mono 字体 + 复制配置
+#   ghostty     安装 Ghostty 终端 + 字体 (JetBrains Mono NF, LXGW WenKai) + 主题 + 配置
 #   zsh         复制 .zshrc + .p10k.zsh
 #   formatters  复制 .prettierrc, .editorconfig, ruff.toml, eslint.config.js
 #   all         以上全部
@@ -82,7 +82,7 @@ if [[ ${#MODULES[@]} -eq 0 && "$LINK" == "false" ]]; then
   echo "     4) editor       settings.json + keybindings.json"
   echo "     5) nvim         keymaps.lua + lazy.lua + options.lua + plugins"
   echo "     6) yazi         Yazi file manager + config"
-  echo "     7) ghostty      Ghostty terminal + LXGW WenKai font + config"
+  echo "     7) ghostty      Ghostty terminal + fonts + theme + config"
   echo "     8) zsh          .zshrc + .p10k.zsh"
   echo "     9) formatters   .prettierrc, .editorconfig, ruff.toml, eslint"
   echo ""
@@ -357,18 +357,25 @@ install_ghostty() {
     warn "Homebrew not found. Download Ghostty from: https://ghostty.org/download"
   fi
 
-  # Install LXGW WenKai Mono font (Chinese fallback font used in config)
-  if brew list --cask font-lxgw-wenkai-mono-tc &>/dev/null 2>&1; then
-    success "font-lxgw-wenkai-mono-tc already installed"
-  elif command -v brew &>/dev/null; then
-    info "  Installing LXGW WenKai Mono TC font..."
-    brew install --cask font-lxgw-wenkai-mono-tc
-    success "font-lxgw-wenkai-mono-tc installed"
+  # Install fonts used in Ghostty config
+  if command -v brew &>/dev/null; then
+    local ghostty_fonts=("font-jetbrains-mono-nerd-font" "font-lxgw-wenkai")
+    for font in "${ghostty_fonts[@]}"; do
+      if brew list --cask "$font" &>/dev/null 2>&1; then
+        success "$font already installed"
+      else
+        info "  Installing $font..."
+        brew install --cask "$font"
+        success "$font installed"
+      fi
+    done
   else
-    warn "Homebrew not found. Install LXGW WenKai Mono manually from: https://github.com/lxgw/LxgwWenkaiMono"
+    warn "Homebrew not found. Install fonts manually:"
+    echo "    - JetBrains Mono Nerd Font: https://www.nerdfonts.com/"
+    echo "    - LXGW WenKai: https://github.com/lxgw/LxgwWenKai"
   fi
 
-  # Copy config
+  # Copy config + custom themes
   local GHOSTTY_CONFIG_DIR="$HOME/.config/ghostty"
   mkdir -p "$GHOSTTY_CONFIG_DIR"
 
@@ -376,6 +383,12 @@ install_ghostty() {
     backup_and_copy "$SCRIPT_DIR/ghostty-config/config" "$GHOSTTY_CONFIG_DIR/config"
   else
     warn "ghostty-config/config not found in repo, skipping"
+  fi
+
+  if [[ -d "$SCRIPT_DIR/ghostty-config/themes" ]]; then
+    mkdir -p "$GHOSTTY_CONFIG_DIR/themes"
+    cp "$SCRIPT_DIR/ghostty-config/themes/"* "$GHOSTTY_CONFIG_DIR/themes/"
+    success "Custom themes copied"
   fi
 }
 
