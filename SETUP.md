@@ -37,10 +37,11 @@ cd ~/dev-env/dotfiles
 
 ### 重要：安装后必做
 
-1. **编辑 `~/.zshrc.local`**，参考之前的 `.zshrc.bak` 或主力 Mac 的 `~/.zshrc.local`，填入这台机器的：
+1. **编辑 `~/.zshrc.local`**，填入这台机器的配置：
    - PATH（Go、PostgreSQL、MySQL 等）
    - Proxy 设置
    - 项目别名（AWS SSH 等）
+   > 可参考 `~/.zshrc.bak`（旧配置备份）或主力 Mac 的 `~/.zshrc.local`
 
 2. **检查 .zshrc 差异**（如果之前有自己的 .zshrc）：
    ```bash
