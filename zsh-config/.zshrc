@@ -225,9 +225,8 @@ unset CLAUDECODE
 # ========== Vim Tip of the Day ==========
 # Use precmd hook to show tip after zsh is fully loaded (avoids p10k instant prompt warning)
 _show_vim_tip() {
-  local tips="$(dirname "$(readlink ~/.zshrc 2>/dev/null || echo ~/.zshrc)")/vim-tips.txt"
-  if [[ -f "$tips" ]]; then
-    echo "\033[0;36m💡 Vim tip:\033[0m $(awk 'BEGIN{srand()}{a[NR]=$0}END{print a[int(rand()*NR)+1]}' "$tips")"
+  if [[ -f "$HOME/.vim-tips.txt" ]]; then
+    echo "\033[0;36m💡 Vim tip:\033[0m $(awk 'BEGIN{srand()}{a[NR]=$0}END{print a[int(rand()*NR)+1]}' "$HOME/.vim-tips.txt")"
   fi
   add-zsh-hook -d precmd _show_vim_tip
 }

@@ -409,48 +409,34 @@ install_zsh() {
   echo ""
   info "▶ [zsh] Setting up Zsh config..."
 
-  # Generate .zshrc.local from existing .zshrc (if needed)
-  if [[ ! -f "$HOME/.zshrc.local" ]]; then
-    if [[ -f "$HOME/.zshrc" && ! -L "$HOME/.zshrc" ]]; then
-      # Extract machine-specific lines from existing .zshrc
-      info "  Extracting machine-specific config to ~/.zshrc.local..."
-      {
-        echo "# ========== Machine-specific Config =========="
-        echo "# Auto-extracted from .zshrc during dotfiles setup."
-        echo "# Edit this file for machine-specific PATH, proxy, credentials."
-        echo ""
-        # Extract PATH entries (except common ones)
-        grep -E '^export PATH=.*(TeX|go/bin|postgresql|mysql|antigravity)' "$HOME/.zshrc" 2>/dev/null || true
-        echo ""
-        # Extract proxy settings
-        sed -n '/^# ========== Proxy/,/^$/p' "$HOME/.zshrc" 2>/dev/null || true
-        echo ""
-        # Extract project-specific aliases (AWS, etc.)
-        sed -n '/^# ========== AWS/,/^$/p' "$HOME/.zshrc" 2>/dev/null || true
-        # Antigravity
-        grep -E 'antigravity' "$HOME/.zshrc" 2>/dev/null | grep -v '^#' || true
-      } > "$HOME/.zshrc.local"
-      success "~/.zshrc.local created (extracted from existing .zshrc)"
-      warn "  ⚠ VERIFY: Review ~/.zshrc.local to ensure all PATH/proxy settings are correct"
-      warn "  ⚠ BACKUP: Old .zshrc saved as ~/.zshrc.bak — check if anything was missed"
-    else
-      # New machine — copy template
-      cp "$SCRIPT_DIR/zsh-config/.zshrc.local.template" "$HOME/.zshrc.local"
-      success "~/.zshrc.local created from template"
-      warn "  ⚠ ACTION REQUIRED: Edit ~/.zshrc.local with your machine-specific PATH/proxy"
+  # .zshrc: COPY (not symlink) — each machine may have its own customizations
+  if [[ -f "$SCRIPT_DIR/zsh-config/.zshrc" ]]; then
+    if [[ -f "$HOME/.zshrc" ]]; then
+      cp "$HOME/.zshrc" "$HOME/.zshrc.bak"
+      success "Backed up .zshrc → .zshrc.bak"
     fi
+    cp "$SCRIPT_DIR/zsh-config/.zshrc" "$HOME/.zshrc"
+    success ".zshrc copied from repo"
+    warn "  ⚠ Review: diff ~/.zshrc.bak ~/.zshrc to check for lost customizations"
+    warn "  ⚠ Add machine-specific config (PATH/proxy) to ~/.zshrc.local"
+  fi
+
+  # .zshrc.local: create template if not exists
+  if [[ ! -f "$HOME/.zshrc.local" ]]; then
+    cp "$SCRIPT_DIR/zsh-config/.zshrc.local.template" "$HOME/.zshrc.local"
+    success "~/.zshrc.local created from template"
+    warn "  ⚠ ACTION REQUIRED: Edit ~/.zshrc.local with your machine-specific PATH/proxy"
   else
     success "~/.zshrc.local already exists, keeping as-is"
   fi
 
-  # Symlink .zshrc
-  if [[ -f "$SCRIPT_DIR/zsh-config/.zshrc" ]]; then
-    backup_and_link "$SCRIPT_DIR/zsh-config/.zshrc" "$HOME/.zshrc"
-  else
-    warn "zsh-config/.zshrc not found in repo, skipping"
+  # vim-tips.txt: copy to home for easy access
+  if [[ -f "$SCRIPT_DIR/zsh-config/vim-tips.txt" ]]; then
+    cp "$SCRIPT_DIR/zsh-config/vim-tips.txt" "$HOME/.vim-tips.txt"
+    success ".vim-tips.txt copied"
   fi
 
-  # Symlink .p10k.zsh
+  # .p10k.zsh: symlink (identical across machines)
   if [[ -f "$SCRIPT_DIR/zsh-config/.p10k.zsh" ]]; then
     backup_and_link "$SCRIPT_DIR/zsh-config/.p10k.zsh" "$HOME/.p10k.zsh"
   else
